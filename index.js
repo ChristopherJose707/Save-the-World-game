@@ -8,7 +8,9 @@ var sprite = new Image();
 sprite.src = "https://attack-js.s3-us-west-1.amazonaws.com/spritesheet+(1).png";
 const asteroids = [];
 const projectiles = [];
-const life = 10;
+
+let life = 10;
+let animationId; 
 
 class Player {
   constructor(x, y) {
@@ -20,6 +22,7 @@ class Player {
     ctx.drawImage(sprite, 7, 5, 31, 38, this.x, this.y, 31, 38);
   }
 }
+const player = new Player(500, 660);
 
 class Projectile {
   constructor(x, y, velocity, width, height) {
@@ -86,19 +89,29 @@ function spawnEnemies() {
 }
 
 
-const player = new Player(500, 660);
 
 function subtractLife() {
   life -= 1;
-  
+  if (life === 0) {
+    cancelAnimationFrame(animationId) // end game by pausing all animation 
+  }
 }
 
+
+
 function animate() {
-  requestAnimationFrame(animate)
+  animationId = requestAnimationFrame(animate) // set animationId for every frame, cancel to end animation.
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   player.draw();
-  projectiles.forEach(projectile => {
+  projectiles.forEach((projectile, i) => {
     projectile.update()
+    if (projectile.x >= 1000 || projectile.y <= (0 - 61) || projectile.x <= (0 - 61 )) {  // remove projectile if out of bounds
+      setTimeout(() => {
+        projectiles.splice(i, 1);
+      }, 0);
+      
+    }
+
   })
 
   asteroids.forEach((asteroid, i) => {
@@ -107,8 +120,8 @@ function animate() {
       setTimeout(() => {
         asteroids.splice(i, 1)
       })
-      // subtractLife()
-      
+      subtractLife()
+      // console.log(life)
     }
 
     projectiles.forEach((projectile, j) => {
@@ -129,7 +142,7 @@ function animate() {
 }
 
 window.addEventListener('click', (event) => {
-  const angle = Math.atan2(event.clientY - 660, event.clientX - 500)
+  const angle = Math.atan2(event.clientY - 660, event.clientX - 500) // modify to change endpoint
   const velocity = {
     x: Math.cos(angle),
     y: Math.sin(angle)

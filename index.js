@@ -14,7 +14,7 @@ let animationId;
 
 class Player {
   constructor(x, y) {
-    this.x = x; // coordinates on canvas
+    this.x = x; // coordinates on canvas (spawn point)
     this.y = y;
   }
 
@@ -26,33 +26,58 @@ const player = new Player(500, 660);
 
 class Projectile {
   constructor(x, y, velocity, width, height) {
-    this.x = x;
+    this.x = x; // coordinates on canvas (spawn point)
     this.y = y;
     this.width = width;
     this.height = height;
     this.velocity = velocity;
+    this.angle = null;
+   
 
     var sprite = new Image();
-    sprite.src = "https://attack-js.s3-us-west-1.amazonaws.com/spritesheet+(1).png";
+    sprite.src =
+      "https://attack-js.s3-us-west-1.amazonaws.com/spritesheet+(1).png";
   }
 
   draw() {
-    ctx.drawImage(sprite, 58, 18, this.width, this.height, this.x, this.y, 46, 14 )
+    ctx.translate(this.x, this.y);
+    ctx.rotate(Math.PI / 180 * (this.angle + 180));
+    ctx.translate(-this.x, -this.y);
+    ctx.drawImage(
+      sprite,
+      58,
+      18,
+      this.width,
+      this.height,
+      this.x,
+      this.y,
+      46,
+      14
+    );
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
+    // ctx.drawImage(sprite, 58, 18, this.width, this.height, this.x, this.y, 46, 14 )
+    
+    // ctx.beginPath();
+    // ctx.ellipse(100, 100, 50, 75, Math.PI / 4, 0, 2 * Math.PI);
+    // ctx.stroke();
   }
 
   update() {
     this.draw();
     this.x = this.x + this.velocity.x
     this.y = this.y + this.velocity.y
+    let radians = Math.atan2(this.velocity.y, this.velocity.x);
+    this.angle = 180 * radians / Math.PI
   }
 }
 
 class Asteroid {
-  constructor(x, y, velocity, width, height) {
-    this.x = x;
+  constructor(x, y, velocity, width, height, radius) {
+    this.x = x; // coordinates on canvas (spawn point)
     this.y = y;
     this.width = width;
-    this.height = height
+    this.height = height;
+    this.radius = radius;
     this.velocity = velocity;
 
     var sprite = new Image();
@@ -61,7 +86,20 @@ class Asteroid {
   }
 
   draw() {
-    ctx.drawImage(sprite, 193, 37, this.width, this.height, this.x, this.y, 60, 51);
+    let ratio = 60 / 51;
+    // ctx.drawImage(sprite, 193, 37, this.width, this.height, this.x, this.y, 60, 51);
+    ctx.drawImage(
+      sprite,
+      193,
+      37,
+      this.width,
+      this.height,
+      this.x,
+      this.y,
+      60,  // multiply to increase size
+      51
+    );
+    
   }
 
   update() {
@@ -73,7 +111,7 @@ class Asteroid {
 
 
 function spawnEnemies() {
-  setInterval(()=>{
+  setInterval(()=>{          //  max    min   min    === random range between 100 - 900
     let randX = Math.random() * (900 - 100) + 100 // Make asteroids hit bottom of screen
     
     const x = (Math.random() * canvas.width)
@@ -84,7 +122,7 @@ function spawnEnemies() {
       y: Math.sin(angle),
     };
 
-    asteroids.push(new Asteroid(x, y, velocity, 60, 51))
+    asteroids.push(new Asteroid(x, y, velocity, 60, 51, 30))
   }, 1000)
 }
 
@@ -121,13 +159,12 @@ function animate() {
         asteroids.splice(i, 1)
       })
       subtractLife()
-      // console.log(life)
     }
 
     projectiles.forEach((projectile, j) => {
      
      
-     // collision detection
+     // collision detection between missile and asteroid 
      if (projectile.x < asteroid.x + asteroid.width && 
         projectile.x + projectile.width > asteroid.x &&
         projectile.y < asteroid.y + asteroid.height && 
@@ -141,11 +178,12 @@ function animate() {
   })
 }
 
+// Fire 
 window.addEventListener('click', (event) => {
   const angle = Math.atan2(event.clientY - 660, event.clientX - 500) // modify to change endpoint
   const velocity = {
-    x: Math.cos(angle),
-    y: Math.sin(angle)
+    x: Math.cos(angle) * 4,   // Increase speed by multiplying x and y. Refactor to have increasing speed on click to max
+    y: Math.sin(angle) * 4
   }
   projectiles.push(new Projectile(500, 660, velocity, 46, 14));
 })

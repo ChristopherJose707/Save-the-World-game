@@ -31,7 +31,8 @@ class Projectile {
     this.width = width;
     this.height = height;
     this.velocity = velocity;
-    this.angle = null;
+    let radians = Math.atan2(this.velocity.y, this.velocity.x);
+    this.angle = 180 * radians / Math.PI;
    
 
     var sprite = new Image();
@@ -40,9 +41,9 @@ class Projectile {
   }
 
   draw() {
-    ctx.translate(this.x, this.y);
-    ctx.rotate(Math.PI / 180 * (this.angle + 180));
-    ctx.translate(-this.x, -this.y);
+    ctx.translate(this.x, this.y); // Sets center pivot point of image by moving entire matrix
+    ctx.rotate(Math.PI / 180 * (this.angle + 180)); // rotates around center point
+    ctx.translate(-this.x, -this.y); //revert translation
     ctx.drawImage(
       sprite,
       58,
@@ -50,24 +51,29 @@ class Projectile {
       this.width,
       this.height,
       this.x,
-      this.y,
+      this.y - 22,
       46,
       14
     );
-    ctx.setTransform(1, 0, 0, 1, 0, 0)
-    // ctx.drawImage(sprite, 58, 18, this.width, this.height, this.x, this.y, 46, 14 )
-    
-    // ctx.beginPath();
-    // ctx.ellipse(100, 100, 50, 75, Math.PI / 4, 0, 2 * Math.PI);
-    // ctx.stroke();
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Resets matrix to original position
+
+
+    // UNCOMMENT TO TEST COLLISIN HIT BOX
+    // ctx.translate(this.x, this.y); // Sets center pivot point of image by moving entire matrix
+    // ctx.rotate(Math.PI / 180 * (this.angle + 180)); // rotates around center point
+    // ctx.translate(-this.x, -this.y); //revert translation
+    //  ctx.beginPath();
+    //  ctx.fillRect(this.x, this.y, 46, 14);
+    // ctx.setTransform(1, 0, 0, 1, 0, 0); // Resets matrix to original position
+
   }
 
   update() {
     this.draw();
     this.x = this.x + this.velocity.x
     this.y = this.y + this.velocity.y
-    let radians = Math.atan2(this.velocity.y, this.velocity.x);
-    this.angle = 180 * radians / Math.PI
+    // let radians = Math.atan2(this.velocity.y, this.velocity.x);
+    // this.angle = 180 * radians / Math.PI
   }
 }
 
@@ -86,19 +92,22 @@ class Asteroid {
   }
 
   draw() {
-    let ratio = 60 / 51;
-    // ctx.drawImage(sprite, 193, 37, this.width, this.height, this.x, this.y, 60, 51);
+    ctx.drawImage(sprite, 193, 37, this.width, this.height, this.x, this.y, 60, 51);
     ctx.drawImage(
       sprite,
       193,
       37,
       this.width,
       this.height,
-      this.x,
-      this.y,
+      this.x - this.radius,
+      this.y - this.radius,
       60,  // multiply to increase size
       51
     );
+
+    // Uncomment to test collision
+    // ctx.beginPath()
+    // ctx.fillRect(this.x, this.y, 60, 51)
     
   }
 
@@ -164,7 +173,7 @@ function animate() {
     projectiles.forEach((projectile, j) => {
      
      
-     // collision detection between missile and asteroid 
+     // collision detection between missile and asteroid : Must REFACTOR 
      if (projectile.x < asteroid.x + asteroid.width && 
         projectile.x + projectile.width > asteroid.x &&
         projectile.y < asteroid.y + asteroid.height && 
@@ -178,7 +187,7 @@ function animate() {
   })
 }
 
-// Fire 
+// Fire missile
 window.addEventListener('click', (event) => {
   const angle = Math.atan2(event.clientY - 660, event.clientX - 500) // modify to change endpoint
   const velocity = {

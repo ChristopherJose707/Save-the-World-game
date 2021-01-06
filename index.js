@@ -4,25 +4,46 @@ const ctx = canvas.getContext("2d");
 canvas.width = 1000;
 canvas.height = 700;
 
+const modal = document.getElementById("modal");
+const startBtn = document.getElementById("startBtn")
+const scoreEl = document.getElementById("score");
+const modalScore = document.getElementById('modal-score')
+
 var sprite = new Image();
 sprite.src = "https://attack-js.s3-us-west-1.amazonaws.com/spritesheet+(1).png";
-const asteroids = [];
-const projectiles = [];
+
+let score = 0;
 
 let life = 10;
 let animationId; 
+
+
+
 
 class Player {
   constructor(x, y) {
     this.x = x; // coordinates on canvas (spawn point)
     this.y = y;
   }
-
+  
   draw(){
     ctx.drawImage(sprite, 7, 5, 31, 38, this.x, this.y, 31, 38);
   }
 }
-const player = new Player(500, 660);
+
+let player = new Player(500, 660);
+let asteroids = [];
+let projectiles = [];
+
+function init() {
+ player = new Player(500, 660);
+ asteroids = [];
+ projectiles = [];
+ score = 0;
+ life = 10;
+ scoreEl.innerHTML = score;
+ modalScore.innerHTML = score;
+}
 
 class Projectile {
   constructor(x, y, velocity, width, height) {
@@ -92,7 +113,7 @@ class Asteroid {
   }
 
   draw() {
-    ctx.drawImage(sprite, 193, 37, this.width, this.height, this.x, this.y, 60, 51);
+    // ctx.drawImage(sprite, 193, 37, this.width, this.height, this.x, this.y, 60, 51);
     ctx.drawImage(
       sprite,
       193,
@@ -141,6 +162,8 @@ function subtractLife() {
   life -= 1;
   if (life === 0) {
     cancelAnimationFrame(animationId) // end game by pausing all animation 
+    modal.style.display = 'flex';
+    modalScore.innerHTML = score
   }
 }
 
@@ -171,8 +194,6 @@ function animate() {
     }
 
     projectiles.forEach((projectile, j) => {
-     
-     
      // collision detection between missile and asteroid : Must REFACTOR 
      if (projectile.x < asteroid.x + asteroid.width && 
         projectile.x + projectile.width > asteroid.x &&
@@ -182,6 +203,8 @@ function animate() {
             asteroids.splice(i, 1)
             projectiles.splice(j, 1)
           }, 0)
+          score += 1;
+          scoreEl.innerHTML = score;
      } 
     })
   })
@@ -196,6 +219,11 @@ window.addEventListener('click', (event) => {
   }
   projectiles.push(new Projectile(500, 660, velocity, 46, 14));
 })
+
+startBtn.addEventListener("click", ()=>{
+  init();
+  animate();
+  spawnEnemies();
+  modal.style.display = 'none'
+})
   
-animate();
-spawnEnemies();

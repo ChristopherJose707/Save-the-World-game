@@ -1,3 +1,4 @@
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
@@ -16,9 +17,6 @@ let score = 0;
 
 let life = 10;
 let animationId; 
-
-
-
 
 class Player {
   constructor(x, y) {
@@ -211,14 +209,32 @@ function animate() {
 }
 
 // Fire missile
-window.addEventListener('click', (event) => {
-  const angle = Math.atan2(event.clientY - 660, event.clientX - 500) // modify to change endpoint
+// window.addEventListener('click', (event) => {
+//   const clickX = event.clientX - bounds[0];
+//   const clickY = event.clientY - bounds[1];
+//   // console.log(event.clientX)
+
+//   const angle = Math.atan2(event.clientY - 660, event.clientX - 500) // modify to change endpoint
+  
+//   const velocity = {
+//     x: Math.cos(angle) * 4,   // Increase speed by multiplying x and y. Refactor to have increasing speed on click to max
+//     y: Math.sin(angle) * 4
+//   }
+//   projectiles.push(new Projectile(500, 660, velocity, 46, 14));
+// })
+
+canvas.addEventListener("click", (event) => {
+  
+  // const angle = Math.atan2(event.clientY - 660, event.clientX - 500); // modify to change endpoint
+  const angle = Math.atan2(event.offsetY - 660, event.offsetX - 500); // modify to change endpoint
+
   const velocity = {
-    x: Math.cos(angle) * 4,   // Increase speed by multiplying x and y. Refactor to have increasing speed on click to max
-    y: Math.sin(angle) * 4
-  }
+    x: Math.cos(angle) * 4, // Increase speed by multiplying x and y. Refactor to have increasing speed on click to max
+    y: Math.sin(angle) * 4,
+  };
   projectiles.push(new Projectile(500, 660, velocity, 46, 14));
-})
+});
+
 
 startBtn.addEventListener("click", ()=>{
   init();
@@ -226,4 +242,6 @@ startBtn.addEventListener("click", ()=>{
   spawnEnemies();
   modal.style.display = 'none'
 })
+
+
   

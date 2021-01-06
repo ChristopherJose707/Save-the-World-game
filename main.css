@@ -30,12 +30,16 @@ body {
   user-select: none;
 }
 
+audio {
+  display: none;
+}
+
 .modal-container {
-  /* position: relative; */
-  top: 0;
-  left: 0;
+  position: absolute;
+  top: 200px;
+  /* left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 0; */
   /* height: 150px;
   width: 500px; */
   display: flex;

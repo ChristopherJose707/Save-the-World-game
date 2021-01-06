@@ -10,14 +10,37 @@ const modal = document.getElementById("modal");
 const startBtn = document.getElementById("startBtn")
 const scoreEl = document.getElementById("score");
 const modalScore = document.getElementById('modal-score')
+const lifeEl = document.getElementById("life");
+
+let themeAudio = document.getElementById("theme-audio");
+themeAudio.src = "audio/theme_song.mp3";
+themeAudio.volume = 0.4;
 
 var sprite = new Image();
 sprite.src = "https://attack-js.s3-us-west-1.amazonaws.com/spritesheet+(1).png";
 
 let score = 0;
-
+let mute = false;
 let life = 10;
 let animationId; 
+
+function playSound(sound) {
+  if (mute) {
+    return new Audio();
+  }
+  switch(sound) {
+    case "missile":
+      return new Audio("audio/missile.mp3");
+    case "explosion":
+      return new Audio("audio/explosion.mp3");
+    case "game_over":
+      return new Audio("audio/explosion.mp3");
+    case "theme":
+      return new Audio("audio/theme_song.mp3");
+    default:
+      return new Audio();
+  }
+}
 
 class Player {
   constructor(x, y) {
@@ -35,14 +58,19 @@ let player = new Player(500, 660);
 let asteroids = [];
 let projectiles = [];
 
+
+// START GAME
 function init() {
- player = new Player(500, 660);
- asteroids = [];
- projectiles = [];
- score = 0;
- life = 10;
- scoreEl.innerHTML = score;
- modalScore.innerHTML = score;
+  player = new Player(500, 660);
+  asteroids = [];
+  projectiles = [];
+  score = 0;
+  life = 10;
+  scoreEl.innerHTML = score;
+  modalScore.innerHTML = score;
+  if (!mute) {
+    themeAudio.play();
+  }
 }
 
 class Projectile {
@@ -168,14 +196,17 @@ function spawnEnemies() {
   }, 1000)
 }
 
-
-
 function subtractLife() {
   life -= 1;
+  lifeEl.innerHTML = life
   if (life === 0) {
     cancelAnimationFrame(animationId) // end game by pausing all animation 
     modal.style.display = 'flex';
-    modalScore.innerHTML = score
+    modalScore.innerHTML = score;
+    themeAudio.pause();
+    themeAudio.src = "audio/game_over.mp3";
+    themeAudio.volume = 0.3;
+    themeAudio.play();
   }
 }
 
@@ -214,6 +245,9 @@ function animate() {
             asteroids.splice(i, 1)
             projectiles.splice(j, 1)
           }, 0)
+          let audio = playSound("explosion")
+          audio.volume = 0.5;
+          audio.play()
           score += 1;
           scoreEl.innerHTML = score;
      }
@@ -223,10 +257,14 @@ function animate() {
 
 // Fire missile
 canvas.addEventListener("click", (event) => {
+  const audio = playSound("missile");
+  audio.volume = 0.5;
+  audio.play()
+
   const angle = Math.atan2(event.offsetY - 660, event.offsetX - 500); // modify to change endpoint
   const velocity = {
-    x: Math.cos(angle) * 4, // Increase speed by multiplying x and y. Refactor to have increasing speed on click to max
-    y: Math.sin(angle) * 4,
+    x: Math.cos(angle) * 6, // Increase speed by multiplying x and y. Refactor to have increasing speed on click to max
+    y: Math.sin(angle) * 6,
   };
   projectiles.push(new Projectile(500, 660, velocity, 46, 14));
   
@@ -240,6 +278,7 @@ startBtn.addEventListener("click", ()=>{
   animate();
   spawnEnemies();
   modal.style.display = 'none'
+  
 })
 
 

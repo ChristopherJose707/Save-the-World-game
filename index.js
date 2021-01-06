@@ -2,6 +2,7 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
+
 canvas.width = 1000;
 canvas.height = 700;
 
@@ -25,6 +26,7 @@ class Player {
   }
   
   draw(){
+    
     ctx.drawImage(sprite, 7, 5, 31, 38, this.x, this.y, 31, 38);
   }
 }
@@ -52,7 +54,19 @@ class Projectile {
     this.velocity = velocity;
     let radians = Math.atan2(this.velocity.y, this.velocity.x);
     this.angle = 180 * radians / Math.PI;
-   
+
+    if (-(this.angle) > 90) {
+      this.topX = this.x
+      this.topY = this.y
+      this.cornerX = this.x - this.height
+      this.cornerY = this.y + this.height
+    } else {
+      this.topX = this.x - this.height 
+      this.topY = this.y - this.height
+      this.cornerX = this.x 
+      this.cornerY = this.y
+    }
+    
 
     var sprite = new Image();
     sprite.src =
@@ -60,6 +74,7 @@ class Projectile {
   }
 
   draw() {
+    
     ctx.translate(this.x, this.y); // Sets center pivot point of image by moving entire matrix
     ctx.rotate(Math.PI / 180 * (this.angle + 180)); // rotates around center point
     ctx.translate(-this.x, -this.y); //revert translation
@@ -77,12 +92,13 @@ class Projectile {
     ctx.setTransform(1, 0, 0, 1, 0, 0); // Resets matrix to original position
 
 
-    // UNCOMMENT TO TEST COLLISIN HIT BOX
+    // UNCOMMENT TO TEST COLLISION HIT BOX
     // ctx.translate(this.x, this.y); // Sets center pivot point of image by moving entire matrix
     // ctx.rotate(Math.PI / 180 * (this.angle + 180)); // rotates around center point
+    
     // ctx.translate(-this.x, -this.y); //revert translation
-    //  ctx.beginPath();
-    //  ctx.fillRect(this.x, this.y, 46, 14);
+    // ctx.beginPath();
+    // ctx.fillRect(this.x, this.y, 46, 14);
     // ctx.setTransform(1, 0, 0, 1, 0, 0); // Resets matrix to original position
 
   }
@@ -91,8 +107,7 @@ class Projectile {
     this.draw();
     this.x = this.x + this.velocity.x
     this.y = this.y + this.velocity.y
-    // let radians = Math.atan2(this.velocity.y, this.velocity.x);
-    // this.angle = 180 * radians / Math.PI
+    
   }
 }
 
@@ -111,15 +126,14 @@ class Asteroid {
   }
 
   draw() {
-    // ctx.drawImage(sprite, 193, 37, this.width, this.height, this.x, this.y, 60, 51);
     ctx.drawImage(
       sprite,
       193,
       37,
       this.width,
       this.height,
-      this.x - this.radius,
-      this.y - this.radius,
+      this.x,
+      this.y,
       60,  // multiply to increase size
       51
     );
@@ -165,8 +179,6 @@ function subtractLife() {
   }
 }
 
-
-
 function animate() {
   animationId = requestAnimationFrame(animate) // set animationId for every frame, cancel to end animation.
   ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -192,48 +204,35 @@ function animate() {
     }
 
     projectiles.forEach((projectile, j) => {
-     // collision detection between missile and asteroid : Must REFACTOR 
-     if (projectile.x < asteroid.x + asteroid.width && 
-        projectile.x + projectile.width > asteroid.x &&
-        projectile.y < asteroid.y + asteroid.height && 
-        projectile.y + projectile.height > asteroid.y ) {
+    //  collision detection between missile and asteroid : Must REFACTOR 
+     let xCenter = (asteroid.x + (asteroid.x + asteroid.width)) / 2
+     let yCenter = (asteroid.y + (asteroid.y + asteroid.height)) / 2
+     const dist = Math.hypot(projectile.x - xCenter, projectile.y - yCenter) // Calculate the distance between two points
+     
+     if (dist <= 30) {
           setTimeout(()=> { // removes frame flash when asteroid hit 
             asteroids.splice(i, 1)
             projectiles.splice(j, 1)
           }, 0)
           score += 1;
           scoreEl.innerHTML = score;
-     } 
+     }
     })
   })
 }
 
 // Fire missile
-// window.addEventListener('click', (event) => {
-//   const clickX = event.clientX - bounds[0];
-//   const clickY = event.clientY - bounds[1];
-//   // console.log(event.clientX)
-
-//   const angle = Math.atan2(event.clientY - 660, event.clientX - 500) // modify to change endpoint
-  
-//   const velocity = {
-//     x: Math.cos(angle) * 4,   // Increase speed by multiplying x and y. Refactor to have increasing speed on click to max
-//     y: Math.sin(angle) * 4
-//   }
-//   projectiles.push(new Projectile(500, 660, velocity, 46, 14));
-// })
-
 canvas.addEventListener("click", (event) => {
-  
-  // const angle = Math.atan2(event.clientY - 660, event.clientX - 500); // modify to change endpoint
   const angle = Math.atan2(event.offsetY - 660, event.offsetX - 500); // modify to change endpoint
-
   const velocity = {
     x: Math.cos(angle) * 4, // Increase speed by multiplying x and y. Refactor to have increasing speed on click to max
     y: Math.sin(angle) * 4,
   };
   projectiles.push(new Projectile(500, 660, velocity, 46, 14));
+  
+
 });
+
 
 
 startBtn.addEventListener("click", ()=>{

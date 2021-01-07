@@ -1,15 +1,13 @@
-
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-
 
 canvas.width = 1000;
 canvas.height = 700;
 
 const modal = document.getElementById("modal");
-const startBtn = document.getElementById("startBtn")
+const startBtn = document.getElementById("startBtn");
 const scoreEl = document.getElementById("score");
-const modalScore = document.getElementById('modal-score')
+const modalScore = document.getElementById("modal-score");
 const lifeEl = document.getElementById("life");
 
 let themeAudio = document.getElementById("theme-audio");
@@ -22,16 +20,22 @@ sprite.src = "https://attack-js.s3-us-west-1.amazonaws.com/spritesheet+(1).png";
 var explosion = new Image();
 explosion.src = "https://attack-js.s3-us-west-1.amazonaws.com/explosion.png";
 
+// reset values on restart
 let score = 0;
 let mute = false;
 let life = 10;
-let animationId; 
+let firingSpeed = 6;
+let spawnCounter = 2000;
+let asteroidSpeed = 1;
+
+
+let animationId;
 
 function playSound(sound) {
   if (mute) {
     return new Audio();
   }
-  switch(sound) {
+  switch (sound) {
     case "missile":
       return new Audio("audio/missile.mp3");
     case "explosion":
@@ -52,8 +56,8 @@ class Player {
     this.x = x; // coordinates on canvas (spawn point)
     this.y = y;
   }
-  
-  draw(){
+
+  draw() {
     ctx.drawImage(sprite, 7, 5, 31, 38, this.x, this.y, 31, 38);
   }
 }
@@ -62,7 +66,6 @@ let player = new Player(500, 660);
 let asteroids = [];
 let projectiles = [];
 
-
 // START GAME
 function init() {
   player = new Player(500, 660);
@@ -70,11 +73,14 @@ function init() {
   projectiles = [];
   score = 0;
   life = 10;
+  firingSpeed = 6;
+  spawnCounter = 2000;
+  asteroidSpeed = 1;
   lifeEl.innerHTML = life;
   scoreEl.innerHTML = score;
   modalScore.innerHTML = score;
   if (!mute) {
-    themeAudio.src = "audio/theme_song.mp3"
+    themeAudio.src = "audio/theme_song.mp3";
     themeAudio.volume = 0.4;
     themeAudio.play();
   }
@@ -88,20 +94,19 @@ class Projectile {
     this.height = height;
     this.velocity = velocity;
     let radians = Math.atan2(this.velocity.y, this.velocity.x);
-    this.angle = 180 * radians / Math.PI;
+    this.angle = (180 * radians) / Math.PI;
 
-    if (-(this.angle) > 90) {
-      this.topX = this.x
-      this.topY = this.y
-      this.cornerX = this.x - this.height
-      this.cornerY = this.y + this.height
+    if (-this.angle > 90) {
+      this.topX = this.x;
+      this.topY = this.y;
+      this.cornerX = this.x - this.height;
+      this.cornerY = this.y + this.height;
     } else {
-      this.topX = this.x - this.height 
-      this.topY = this.y - this.height
-      this.cornerX = this.x 
-      this.cornerY = this.y
+      this.topX = this.x - this.height;
+      this.topY = this.y - this.height;
+      this.cornerX = this.x;
+      this.cornerY = this.y;
     }
-    
 
     var sprite = new Image();
     sprite.src =
@@ -109,9 +114,8 @@ class Projectile {
   }
 
   draw() {
-    
     ctx.translate(this.x, this.y); // Sets center pivot point of image by moving entire matrix
-    ctx.rotate(Math.PI / 180 * (this.angle + 180)); // rotates around center point
+    ctx.rotate((Math.PI / 180) * (this.angle + 180)); // rotates around center point
     ctx.translate(-this.x, -this.y); //revert translation
     ctx.drawImage(
       sprite,
@@ -126,23 +130,20 @@ class Projectile {
     );
     ctx.setTransform(1, 0, 0, 1, 0, 0); // Resets matrix to original position
 
-
     // UNCOMMENT TO TEST COLLISION HIT BOX
     // ctx.translate(this.x, this.y); // Sets center pivot point of image by moving entire matrix
     // ctx.rotate(Math.PI / 180 * (this.angle + 180)); // rotates around center point
-    
+
     // ctx.translate(-this.x, -this.y); //revert translation
     // ctx.beginPath();
     // ctx.fillRect(this.x, this.y, 46, 14);
     // ctx.setTransform(1, 0, 0, 1, 0, 0); // Resets matrix to original position
-
   }
 
   update() {
     this.draw();
-    this.x = this.x + this.velocity.x
-    this.y = this.y + this.velocity.y
-    
+    this.x = this.x + this.velocity.x;
+    this.y = this.y + this.velocity.y;
   }
 }
 
@@ -169,14 +170,13 @@ class Asteroid {
       this.height,
       this.x,
       this.y,
-      60,  // multiply to increase size
+      60, // multiply to increase size
       51
     );
 
     // Uncomment to test collision
     // ctx.beginPath()
     // ctx.fillRect(this.x, this.y, 60, 51)
-    
   }
 
   update() {
@@ -193,9 +193,7 @@ class Explosion {
     this.width = width;
     this.height = height;
     this.frameX = 1;
-    this.frameY = 0;
-
-    
+    this.frameY = 1;
   }
 
   draw() {
@@ -207,137 +205,151 @@ class Explosion {
       this.height,
       this.x,
       this.y,
-      this.width, 
+      this.width,
       this.height
     );
-
-    // Uncomment to test collision
-    // ctx.beginPath()
-    // ctx.fillRect(this.x, this.y, 60, 51)
+    if (this.frameX < 8) {
+      this.frameX++;
+    } else if (this.frameX === 8) {
+      this.frameX = 1;
+      this.frameY++;
+    } else {
+      this.frameX = 1;
+    }
   }
 
-  update() {
-    this.draw();
-  }
 }
 
-let expTest = new Explosion(100, 100, 256, 256)
-
-function animateExp(){
-  requestAnimationFrame(animateExp)
-  ctx.clearRect(0,0, canvas.width, canvas.height);
-  expTest.update();
-  if(expTest.frameX < 8) expTest.frameX++
-  
-}
-animateExp()
-
+window.setInterval(()=>{
+  asteroidSpeed ++
+}, 40000)
 function spawnEnemies() {
-  setInterval(()=>{          //  max    min   min    === random range between 100 - 900
-    let randX = Math.random() * (900 - 100) + 100 // Make asteroids hit bottom of screen
-    
-    const x = (Math.random() * canvas.width)
-    const y = 0 - 51
-    const angle = Math.atan2(660 - y, randX - x); 
+  if (spawnCounter > 1500 ) {
+    spawnCounter -= 20;
+  } 
+  setTimeout(() => {
+    let randX = Math.random() * (900 - 100) + 100; // Make asteroids hit bottom of screen
+
+    const x = Math.random() * canvas.width;
+    const y = 0 - 51;
+    const angle = Math.atan2(660 - y, randX - x);
     const velocity = {
-      x: Math.cos(angle),
-      y: Math.sin(angle),
+      x: Math.cos(angle) * asteroidSpeed,
+      y: Math.sin(angle) * asteroidSpeed,
     };
 
-    asteroids.push(new Asteroid(x, y, velocity, 60, 51, 30))
-  }, 1000)
+    asteroids.push(new Asteroid(x, y, velocity, 60, 51, 30));
+  }, spawnCounter)
+  
+  setTimeout(spawnEnemies, spawnCounter)
 }
 
 function subtractLife() {
   life -= 1;
-  lifeEl.innerHTML = life
+  lifeEl.innerHTML = life;
   let audio = playSound("hit");
   // audio.volume = 0.5;
-  audio.play()
+  audio.play();
   if (life === 0) {
-    cancelAnimationFrame(animationId) // end game by pausing all animation 
-    modal.style.display = 'flex';
+    cancelAnimationFrame(animationId); // end game by pausing all animation
+    modal.style.display = "flex";
     modalScore.innerHTML = score;
     themeAudio.pause();
     themeAudio.src = "audio/game_over.mp3";
     themeAudio.volume = 0.3;
     themeAudio.play();
-    life = 10
+    life = 10;
   }
 }
 
-
-
 function animate() {
-  animationId = requestAnimationFrame(animate) // set animationId for every frame, cancel to end animation.
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  animationId = requestAnimationFrame(animate); // set animationId for every frame, cancel to end animation.
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   player.draw();
   projectiles.forEach((projectile, i) => {
-    projectile.update()
-    if (projectile.x >= 1000 || projectile.y <= (0 - 61) || projectile.x <= (0 - 61 )) {  // remove projectile if out of bounds
+    projectile.update();
+    if (
+      projectile.x >= 1000 ||
+      projectile.y <= 0 - 61 ||
+      projectile.x <= 0 - 61
+    ) {
+      // remove projectile if out of bounds
       setTimeout(() => {
         projectiles.splice(i, 1);
       }, 0);
-      
     }
-
-  })
+  });
 
   asteroids.forEach((asteroid, i) => {
-    asteroid.update()
-    if (asteroid.y >= canvas.height) { // Collision for asteroid hitting bottom screen
+    asteroid.update();
+    if (asteroid.y >= canvas.height) {
+      // Collision for asteroid hitting bottom screen
       setTimeout(() => {
-        asteroids.splice(i, 1)
-      })
-      subtractLife()
+        asteroids.splice(i, 1);
+      });
+      subtractLife();
     }
 
     projectiles.forEach((projectile, j) => {
-    //  collision detection between missile and asteroid : Must REFACTOR 
-     let xCenter = (asteroid.x + (asteroid.x + asteroid.width)) / 2
-     let yCenter = (asteroid.y + (asteroid.y + asteroid.height)) / 2
-     const dist = Math.hypot(projectile.x - xCenter, projectile.y - yCenter) // Calculate the distance between two points
-     
-     if (dist <= 30) {
-          setTimeout(()=> { // removes frame flash when asteroid hit 
-            asteroids.splice(i, 1)
-            projectiles.splice(j, 1)
-          }, 0)
-          let audio = playSound("explosion")
-          audio.volume = 0.5;
-          audio.play()
-          score += 1;
-          scoreEl.innerHTML = score;
-     }
-    })
-  })
+      //  collision detection between missile and asteroid : Must REFACTOR
+      let xCenter = (asteroid.x + (asteroid.x + asteroid.width)) / 2;
+      let yCenter = (asteroid.y + (asteroid.y + asteroid.height)) / 2;
+      const dist = Math.hypot(projectile.x - xCenter, projectile.y - yCenter); // Calculate the distance between two points
+
+      if (dist <= 30) {
+        setTimeout(() => {
+          // removes frame flash when asteroid hit
+          asteroids.splice(i, 1);
+          projectiles.splice(j, 1);
+        }, 0);
+        let exp = new Explosion(xCenter- 100, yCenter - 100, 256, 256)
+        exp.draw()
+        
+        
+        let audio = playSound("explosion");
+        audio.volume = 0.5;
+        audio.play();
+        score += 1;
+        scoreEl.innerHTML = score;
+      }
+    });
+  });
 }
+
+let canFire = true;
+window.setInterval(() => {
+  canFire = true
+}, 750)
+
+// set firing speed
+window.setInterval(() => {
+  firingSpeed++
+},20000)
 
 // Fire missile
 canvas.addEventListener("click", (event) => {
-  const audio = playSound("missile");
-  audio.volume = 0.5;
-  audio.play()
-
-  const angle = Math.atan2(event.offsetY - 660, event.offsetX - 500); // modify to change endpoint
-  const velocity = {
-    x: Math.cos(angle) * 6, // Increase speed by multiplying x and y. Refactor to have increasing speed on click to max
-    y: Math.sin(angle) * 6,
-  };
-  projectiles.push(new Projectile(500, 660, velocity, 46, 14));
+  if (canFire) {
+    const audio = playSound("missile");
+    audio.volume = 0.5;
+    audio.play();
+    
   
-
+    const angle = Math.atan2(event.offsetY - 660, event.offsetX - 500); // modify to change endpoint
+    const velocity = {
+      x: Math.cos(angle) * firingSpeed, // Increase speed by multiplying x and y. Refactor to have increasing speed on click to max
+      y: Math.sin(angle) * firingSpeed,
+    };
+  
+    projectiles.push(new Projectile(500, 660, velocity, 46, 14));
+    setTimeout(() => {
+      canFire = false
+    }, 0)
+  }
 });
 
-
-
-startBtn.addEventListener("click", ()=>{
+startBtn.addEventListener("click", () => {
   init();
   animate();
   spawnEnemies();
-  modal.style.display = 'none'
-  
-})
-
-
-  
+  modal.style.display = "none";
+});

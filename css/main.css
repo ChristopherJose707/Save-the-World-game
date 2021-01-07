@@ -115,6 +115,7 @@ audio {
   border-radius: 10px;
   cursor: pointer;
   outline: 0;
+  font-family: 'Orbitron', sans-serif;
 }
 
 .life {

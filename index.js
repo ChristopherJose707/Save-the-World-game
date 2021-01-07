@@ -19,6 +19,9 @@ themeAudio.volume = 0.4;
 var sprite = new Image();
 sprite.src = "https://attack-js.s3-us-west-1.amazonaws.com/spritesheet+(1).png";
 
+var explosion = new Image();
+explosion.src = "https://attack-js.s3-us-west-1.amazonaws.com/explosion.png";
+
 let score = 0;
 let mute = false;
 let life = 10;
@@ -37,6 +40,8 @@ function playSound(sound) {
       return new Audio("audio/explosion.mp3");
     case "theme":
       return new Audio("audio/theme_song.mp3");
+    case "hit":
+      return new Audio("audio/hit2.mp3");
     default:
       return new Audio();
   }
@@ -49,7 +54,6 @@ class Player {
   }
   
   draw(){
-    
     ctx.drawImage(sprite, 7, 5, 31, 38, this.x, this.y, 31, 38);
   }
 }
@@ -66,9 +70,12 @@ function init() {
   projectiles = [];
   score = 0;
   life = 10;
+  lifeEl.innerHTML = life;
   scoreEl.innerHTML = score;
   modalScore.innerHTML = score;
   if (!mute) {
+    themeAudio.src = "audio/theme_song.mp3"
+    themeAudio.volume = 0.4;
     themeAudio.play();
   }
 }
@@ -179,6 +186,51 @@ class Asteroid {
   }
 }
 
+class Explosion {
+  constructor(x, y, width, height) {
+    this.x = x; // coordinates on canvas (spawn point)
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.frameX = 1;
+    this.frameY = 0;
+
+    
+  }
+
+  draw() {
+    ctx.drawImage(
+      explosion,
+      this.width * this.frameX,
+      this.height * this.frameY,
+      this.width,
+      this.height,
+      this.x,
+      this.y,
+      this.width, 
+      this.height
+    );
+
+    // Uncomment to test collision
+    // ctx.beginPath()
+    // ctx.fillRect(this.x, this.y, 60, 51)
+  }
+
+  update() {
+    this.draw();
+  }
+}
+
+let expTest = new Explosion(100, 100, 256, 256)
+
+function animateExp(){
+  requestAnimationFrame(animateExp)
+  ctx.clearRect(0,0, canvas.width, canvas.height);
+  expTest.update();
+  if(expTest.frameX < 8) expTest.frameX++
+  
+}
+animateExp()
 
 function spawnEnemies() {
   setInterval(()=>{          //  max    min   min    === random range between 100 - 900
@@ -199,6 +251,9 @@ function spawnEnemies() {
 function subtractLife() {
   life -= 1;
   lifeEl.innerHTML = life
+  let audio = playSound("hit");
+  // audio.volume = 0.5;
+  audio.play()
   if (life === 0) {
     cancelAnimationFrame(animationId) // end game by pausing all animation 
     modal.style.display = 'flex';
@@ -207,8 +262,11 @@ function subtractLife() {
     themeAudio.src = "audio/game_over.mp3";
     themeAudio.volume = 0.3;
     themeAudio.play();
+    life = 10
   }
 }
+
+
 
 function animate() {
   animationId = requestAnimationFrame(animate) // set animationId for every frame, cancel to end animation.

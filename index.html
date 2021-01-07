@@ -7,15 +7,19 @@
   <link rel="stylesheet" href="./main.css">
 </head>
 <body>
-  <div class="title">Save the World!</div>
-  <div class="score-div">
-    <span>Score: </span>
-    <span id="score">0</span>
-    <span>Life: </span>
-    <span id="life">10</span>
+  <div class="logo">
+    <!-- <h1>Save the World</h1> -->
+    <img src="images/cropped_logo.jpeg" alt="">
   </div>
+  <div class="score-div">
+    <span>Score: <span id="score">0</span></span>
+    <span id="life-whole" class="life">Life: <span id="life">10</span></span>
+    <button id="mute">Mute Music</button>
+  </div>
+  <canvas id="canvas"></canvas>
+  <audio id="theme-audio"></audio>
   <div id="modal" class="modal-container">
-    <div class="modal-background">
+    <div class="modal-content">
       <h1 id="modal-score">0</h1>
       <p>Points</p>
       <div class="start-div">
@@ -23,8 +27,8 @@
       </div>
     </div>
   </div>
-  <canvas id="canvas"></canvas>
-  <audio id="theme-audio"></audio>
   <script src="index.js"></script>
+  <footer>
+  </footer>
 </body>
 </html>

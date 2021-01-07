@@ -9,6 +9,8 @@ const startBtn = document.getElementById("startBtn");
 const scoreEl = document.getElementById("score");
 const modalScore = document.getElementById("modal-score");
 const lifeEl = document.getElementById("life");
+const lifeWhole = document.getElementById("life-whole")
+const muteBtn = document.getElementById("mute");
 
 let themeAudio = document.getElementById("theme-audio");
 themeAudio.src = "audio/theme_song.mp3";
@@ -76,6 +78,7 @@ function init() {
   firingSpeed = 6;
   spawnCounter = 2000;
   asteroidSpeed = 1;
+  lifeWhole.classList.remove("blinking");
   lifeEl.innerHTML = life;
   scoreEl.innerHTML = score;
   modalScore.innerHTML = score;
@@ -246,6 +249,9 @@ function spawnEnemies() {
 
 function subtractLife() {
   life -= 1;
+  if (life < 6) {
+    lifeWhole.classList.add("blinking")
+  }
   lifeEl.innerHTML = life;
   let audio = playSound("hit");
   // audio.volume = 0.5;
@@ -261,6 +267,8 @@ function subtractLife() {
     life = 10;
   }
 }
+
+
 
 function animate() {
   animationId = requestAnimationFrame(animate); // set animationId for every frame, cancel to end animation.
@@ -296,13 +304,13 @@ function animate() {
       let yCenter = (asteroid.y + (asteroid.y + asteroid.height)) / 2;
       const dist = Math.hypot(projectile.x - xCenter, projectile.y - yCenter); // Calculate the distance between two points
 
-      if (dist <= 30) {
+      if (dist - 10 <= 30) {
         setTimeout(() => {
           // removes frame flash when asteroid hit
           asteroids.splice(i, 1);
           projectiles.splice(j, 1);
         }, 0);
-        let exp = new Explosion(xCenter- 100, yCenter - 100, 256, 256)
+        exp = new Explosion(xCenter- 100, yCenter - 100, 256, 256)
         exp.draw()
         
         
@@ -316,6 +324,8 @@ function animate() {
   });
 }
 
+
+// set firing delay
 let canFire = true;
 window.setInterval(() => {
   canFire = true
@@ -353,3 +363,7 @@ startBtn.addEventListener("click", () => {
   spawnEnemies();
   modal.style.display = "none";
 });
+
+muteBtn.addEventListener("click", () => {
+  themeAudio.pause()
+})

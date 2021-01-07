@@ -29,7 +29,7 @@ let life = 10;
 let firingSpeed = 6;
 let spawnCounter = 2000;
 let asteroidSpeed = 1;
-
+let playing = false;
 
 let animationId;
 
@@ -71,6 +71,7 @@ let projectiles = [];
 // START GAME
 function init() {
   player = new Player(500, 660);
+  playing = true;
   asteroids = [];
   projectiles = [];
   score = 0;
@@ -260,6 +261,7 @@ function subtractLife() {
     cancelAnimationFrame(animationId); // end game by pausing all animation
     modal.style.display = "flex";
     modalScore.innerHTML = score;
+    playing = false;
     themeAudio.pause();
     themeAudio.src = "audio/game_over.mp3";
     themeAudio.volume = 0.3;
@@ -338,22 +340,24 @@ window.setInterval(() => {
 
 // Fire missile
 canvas.addEventListener("click", (event) => {
-  if (canFire) {
-    const audio = playSound("missile");
-    audio.volume = 0.5;
-    audio.play();
+  if(playing) {
+    if (canFire) {
+      const audio = playSound("missile");
+      audio.volume = 0.5;
+      audio.play();
+      
     
-  
-    const angle = Math.atan2(event.offsetY - 660, event.offsetX - 500); // modify to change endpoint
-    const velocity = {
-      x: Math.cos(angle) * firingSpeed, // Increase speed by multiplying x and y. Refactor to have increasing speed on click to max
-      y: Math.sin(angle) * firingSpeed,
-    };
-  
-    projectiles.push(new Projectile(500, 660, velocity, 46, 14));
-    setTimeout(() => {
-      canFire = false
-    }, 0)
+      const angle = Math.atan2(event.offsetY - 660, event.offsetX - 500); // modify to change endpoint
+      const velocity = {
+        x: Math.cos(angle) * firingSpeed, // Increase speed by multiplying x and y. Refactor to have increasing speed on click to max
+        y: Math.sin(angle) * firingSpeed,
+      };
+    
+      projectiles.push(new Projectile(500, 660, velocity, 46, 14));
+      setTimeout(() => {
+        canFire = false
+      }, 0)
+    }
   }
 });
 
@@ -365,5 +369,14 @@ startBtn.addEventListener("click", () => {
 });
 
 muteBtn.addEventListener("click", () => {
-  themeAudio.pause()
+  
+  if (!mute) {
+    mute = true;
+    muteBtn.innerHTML = "Unmute"
+    themeAudio.pause()
+  } else {
+    mute = false
+    muteBtn.innerHTML = "Mute Music"
+    themeAudio.play()
+  }
 })

@@ -393,7 +393,7 @@ window.setInterval(() => {
 
 // Fire missile
 canvas.addEventListener("click", (event) => {
-  console.log(firingSpeed)
+  
   if(playing) {
     if (canFire) {
       const audio = playSound("missile");

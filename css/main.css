@@ -1,5 +1,7 @@
 * {
   margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html {
@@ -13,7 +15,7 @@ body {
   width: 1000px;
   margin-left:auto;
   margin-right: auto;
-  background-color: white;
+  background-color: rgb(4, 6, 6);
 }
 
 .logo {
@@ -40,6 +42,7 @@ body {
   margin-top: 2px;
   user-select: none;
   font-size: 32px;
+  padding-top: 3px;
 }
 
 audio {
@@ -75,6 +78,7 @@ audio {
   padding: 10px;
   border-radius: 10px;
   border: 1px solid black;
+
 }
 
 @keyframes animatetop {
@@ -88,7 +92,6 @@ audio {
 }
 
 .modal-content p {
-  color: gray;
   margin-bottom: 5px;
 }
 
@@ -118,6 +121,16 @@ audio {
   font-family: 'Orbitron', sans-serif;
 }
 
+#super {
+  background: transparent;
+  color: white;
+  border: 1px solid black;
+  border-radius: 10px;
+  cursor: pointer;
+  outline: 0;
+  font-family: 'Orbitron', sans-serif;
+}
+
 .life {
   color: #1de823;
 }
@@ -138,10 +151,13 @@ footer {
   display: flex;
   width: 1000px;
   justify-content: space-around;
+  background-color: rgb(4, 6, 6);
+  color: white;
+  margin-top: 5px;
 }
 
 .footer-right a{
-  color: black;
+  color: white;
   
 }
 
@@ -149,4 +165,22 @@ footer {
   display: flex;
   justify-content: space-around;
   width: 50px;
+}
+
+
+
+.hide {
+  display: none;
+}
+
+.justify {
+  justify-content: space-around;
+}
+
+.inst-1 {
+  font-size: 18px
+}
+
+.inst-2 {
+  color: gray;
 }

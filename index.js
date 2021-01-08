@@ -11,6 +11,10 @@ const modalScore = document.getElementById("modal-score");
 const lifeEl = document.getElementById("life");
 const lifeWhole = document.getElementById("life-whole")
 const muteBtn = document.getElementById("mute");
+const pointsEl = document.getElementsByClassName("points");
+let modalContent = document.getElementById("modal-content");
+let instructionEl = document.getElementsByClassName("instruction");
+// let superBtn = document.getElementById("super");
 
 let themeAudio = document.getElementById("theme-audio");
 themeAudio.src = "audio/theme_song.mp3";
@@ -28,10 +32,37 @@ let mute = false;
 let life = 10;
 let firingSpeed = 6;
 let spawnCounter = 2000;
-let asteroidSpeed = 1;
+let asteroidSpeed = 2;
 let playing = false;
+// let superMode = false;
 
 let animationId;
+
+if (!playing) {
+  startBtn.innerHTML = "Start Game"
+  for(let i = 0; i < pointsEl.length; i++) {
+    pointsEl[i].classList.add("hide")
+  }
+  modalContent.classList.add("justify")
+}
+
+
+
+// function changeMode() {
+//   let prevFiringSpeed = 6;
+//   let prevAsteroidSpeed = 2;
+
+//   if (superMode) {
+//     prevFiringSpeed = firingSpeed;
+//     prevAsteroidSpeed = asteroidSpeed;
+//     firingSpeed = 20;
+//     asteroidSpeed = 5;
+//   } else {
+//     firingSpeed = prevFiringSpeed;
+//     asteroidSpeed = prevAsteroidSpeed;
+    
+//   }
+// }
 
 function playSound(sound) {
   if (mute) {
@@ -152,12 +183,11 @@ class Projectile {
 }
 
 class Asteroid {
-  constructor(x, y, velocity, width, height, radius) {
+  constructor(x, y, velocity, width, height) {
     this.x = x; // coordinates on canvas (spawn point)
     this.y = y;
     this.width = width;
     this.height = height;
-    this.radius = radius;
     this.velocity = velocity;
 
     var sprite = new Image();
@@ -224,9 +254,11 @@ class Explosion {
 
 }
 
+// Set Asteroid Speed
 window.setInterval(()=>{
   asteroidSpeed ++
 }, 40000)
+
 function spawnEnemies() {
   if (spawnCounter > 1500 ) {
     spawnCounter -= 20;
@@ -248,31 +280,52 @@ function spawnEnemies() {
   setTimeout(spawnEnemies, spawnCounter)
 }
 
+function reset() {
+  modal.style.display = "flex";
+  modalScore.innerHTML = score;
+  playing = false;
+  startBtn.innerHTML = "Restart Game";
+  asteroidSpeed = 2;
+  firingSpeed = 6;
+
+  for (let i = 0; i < pointsEl.length; i++) {
+    pointsEl[i].classList.remove("hide");
+  }
+
+  for (let i = 0; i < instructionEl.length; i++) {
+    instructionEl[i].classList.add("hide");
+  }
+
+  modalContent.classList.remove("justify");
+  themeAudio.pause();
+  themeAudio.src = "audio/game_over.mp3";
+  themeAudio.volume = 0.3;
+  themeAudio.play();
+  life = 10;
+}
+
+// END GAME 
 function subtractLife() {
   life -= 1;
   if (life < 6) {
     lifeWhole.classList.add("blinking")
   }
+
   lifeEl.innerHTML = life;
   let audio = playSound("hit");
-  // audio.volume = 0.5;
   audio.play();
+
   if (life === 0) {
     cancelAnimationFrame(animationId); // end game by pausing all animation
-    modal.style.display = "flex";
-    modalScore.innerHTML = score;
-    playing = false;
-    themeAudio.pause();
-    themeAudio.src = "audio/game_over.mp3";
-    themeAudio.volume = 0.3;
-    themeAudio.play();
-    life = 10;
+    reset()
+   
   }
 }
 
 
 
 function animate() {
+  // changeMode();
   animationId = requestAnimationFrame(animate); // set animationId for every frame, cancel to end animation.
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   player.draw();
@@ -326,17 +379,17 @@ function animate() {
   });
 }
 
-
-// set firing delay
 let canFire = true;
+// set firing delay
 window.setInterval(() => {
   canFire = true
 }, 750)
-
 // set firing speed
 window.setInterval(() => {
   firingSpeed++
 },20000)
+
+
 
 // Fire missile
 canvas.addEventListener("click", (event) => {
@@ -369,14 +422,26 @@ startBtn.addEventListener("click", () => {
 });
 
 muteBtn.addEventListener("click", () => {
-  
   if (!mute) {
     mute = true;
     muteBtn.innerHTML = "Unmute"
     themeAudio.pause()
   } else {
     mute = false
-    muteBtn.innerHTML = "Mute Music"
+    muteBtn.innerHTML = "Mute"
     themeAudio.play()
   }
 })
+
+// superBtn.addEventListener("click", ()=>{
+
+//   if (!superMode) {
+//     superMode = true;
+//     superBtn.innerHTML = "Normal Mode"
+    
+//   } else {
+//     superMode = false;
+//     superBtn.innerHTML = "Super Mode"
+//   }
+
+// })

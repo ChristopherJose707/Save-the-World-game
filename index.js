@@ -379,6 +379,7 @@ function animate() {
   });
 }
 
+
 let canFire = true;
 // set firing delay
 window.setInterval(() => {

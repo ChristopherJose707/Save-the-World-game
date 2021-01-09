@@ -167,7 +167,9 @@ footer {
   width: 50px;
 }
 
-
+.footer-left {
+  user-select: none;
+}
 
 .hide {
   display: none;

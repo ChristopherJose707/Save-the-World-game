@@ -14,7 +14,7 @@ const muteBtn = document.getElementById("mute");
 const pointsEl = document.getElementsByClassName("points");
 let modalContent = document.getElementById("modal-content");
 let instructionEl = document.getElementsByClassName("instruction");
-// let superBtn = document.getElementById("super");
+let superBtn = document.getElementById("super");
 
 let themeAudio = document.getElementById("theme-audio");
 themeAudio.src = "audio/theme_song.mp3";
@@ -34,7 +34,7 @@ let firingSpeed = 6;
 let spawnCounter = 2000;
 let asteroidSpeed = 2;
 let playing = false;
-// let superMode = false;
+let superMode = false;
 
 let animationId;
 
@@ -48,21 +48,21 @@ if (!playing) {
 
 
 
-// function changeMode() {
-//   let prevFiringSpeed = 6;
-//   let prevAsteroidSpeed = 2;
+function changeMode() {
+  let prevFiringSpeed = 6;
+  let prevAsteroidSpeed = 2;
 
-//   if (superMode) {
-//     prevFiringSpeed = firingSpeed;
-//     prevAsteroidSpeed = asteroidSpeed;
-//     firingSpeed = 20;
-//     asteroidSpeed = 5;
-//   } else {
-//     firingSpeed = prevFiringSpeed;
-//     asteroidSpeed = prevAsteroidSpeed;
+  if (superMode) {
+    prevFiringSpeed = firingSpeed;
+    prevAsteroidSpeed = asteroidSpeed;
+    firingSpeed = 20;
+    asteroidSpeed = 5;
+  } else {
+    firingSpeed = prevFiringSpeed;
+    asteroidSpeed = prevAsteroidSpeed;
     
-//   }
-// }
+  }
+}
 
 function playSound(sound) {
   if (mute) {
@@ -260,7 +260,7 @@ window.setInterval(()=>{
 }, 40000)
 
 function spawnEnemies() {
-  if (spawnCounter > 1500 ) {
+  if (spawnCounter > 1000 ) {
     spawnCounter -= 20;
   } 
   setTimeout(() => {
@@ -325,7 +325,7 @@ function subtractLife() {
 
 
 function animate() {
-  // changeMode();
+  changeMode();
   animationId = requestAnimationFrame(animate); // set animationId for every frame, cancel to end animation.
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   player.draw();
@@ -379,6 +379,7 @@ function animate() {
   });
 }
 
+
 let canFire = true;
 // set firing delay
 window.setInterval(() => {
@@ -393,6 +394,7 @@ window.setInterval(() => {
 
 // Fire missile
 canvas.addEventListener("click", (event) => {
+  
   if(playing) {
     if (canFire) {
       const audio = playSound("missile");
@@ -433,15 +435,15 @@ muteBtn.addEventListener("click", () => {
   }
 })
 
-// superBtn.addEventListener("click", ()=>{
+superBtn.addEventListener("click", ()=>{
 
-//   if (!superMode) {
-//     superMode = true;
-//     superBtn.innerHTML = "Normal Mode"
+  if (!superMode) {
+    superMode = true;
+    superBtn.innerHTML = "Normal Mode"
     
-//   } else {
-//     superMode = false;
-//     superBtn.innerHTML = "Super Mode"
-//   }
+  } else {
+    superMode = false;
+    superBtn.innerHTML = "Super Mode"
+  }
 
-// })
+})

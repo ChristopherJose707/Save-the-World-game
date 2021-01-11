@@ -4,6 +4,8 @@ Save the World is a fun arcade game with simple and easy to use controls where t
 
 The game gets progressively harder as the projectiles increase in speed and begin to spawn faster. 
 
+[Live Link](https://christopherjose707.github.io/Save-the-World-game/)
+
 *Start Screen*
 ![](docs/Screen%20Shot%202021-01-10%20at%209.31.23%20PM.png)
 
